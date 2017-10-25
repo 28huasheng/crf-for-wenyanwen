@@ -125,11 +125,11 @@ bool FeatureIndex::applyRule(string_buffer *os,
 void FeatureIndex::rebuildFeatures(TaggerImpl *tagger) const {
   size_t fid = tagger->feature_id();
   const size_t thread_id = tagger->thread_id();
-
+  //每一个tagger,构建了一个node和path构成的网，数据就是该tagger对应的语句
   Allocator *allocator = tagger->allocator();
   allocator->clear_freelist(thread_id);
   FeatureCache *feature_cache = allocator->feature_cache();
-
+  //从feature_cache中提出unigram的特征，加入到node中
   for (size_t cur = 0; cur < tagger->size(); ++cur) {
     const int *f = (*feature_cache)[fid++];
     for (size_t i = 0; i < y_.size(); ++i) {
@@ -141,7 +141,7 @@ void FeatureIndex::rebuildFeatures(TaggerImpl *tagger) const {
       tagger->set_node(n, cur, i);
     }
   }
-
+  ////从feature_cache中提出bigram的特征，加入到node中,如果没有bigram，就都是-1
   for (size_t cur = 1; cur < tagger->size(); ++cur) {
     const int *f = (*feature_cache)[fid++];
     for (size_t j = 0; j < y_.size(); ++j) {
@@ -161,11 +161,12 @@ void FeatureIndex::rebuildFeatures(TaggerImpl *tagger) const {
 
 bool FeatureIndex::buildFeatures(TaggerImpl *tagger) const {
   string_buffer os;
-  std::vector<int> feature;
-
+  std::vector<int> feature;	//feature就是一个int型vector，里面保存了ID的值
+  //SQ，feature_cache只有一个实例，含有所有tagger和句子序列的特征，所有的tagger拥有这个实例的指针
   FeatureCache *feature_cache = tagger->allocator()->feature_cache();
-  tagger->set_feature_id(feature_cache->size());
-
+  tagger->set_feature_id(feature_cache->size());//SQ，比如第2个tagger,那么feature_cache中的起始位置，就是第一个tagger缓存到feature_cache中的个数
+ //第3个tagger,feature_id就应该是1,2两个tagger中所有的feature缓存到feature_cache后的个数
+  //解析unigram特征，插入到feature_cache中，如果这个tagger中对应句子长度为30个词，那么此处插入30个feature
   for (size_t cur = 0; cur < tagger->size(); ++cur) {
     for (std::vector<std::string>::const_iterator it
              = unigram_templs_.begin();
@@ -178,7 +179,7 @@ bool FeatureIndex::buildFeatures(TaggerImpl *tagger) const {
     feature_cache->add(feature);
     feature.clear();
   }
-
+  //解析bigram,插入到feature_cache中,如果这个tagger中对应句子长度为30个词，那么此处再插入30个feature
   for (size_t cur = 1; cur < tagger->size(); ++cur) {
     for (std::vector<std::string>::const_iterator
              it = bigram_templs_.begin();

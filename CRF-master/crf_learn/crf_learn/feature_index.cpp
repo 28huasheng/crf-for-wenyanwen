@@ -504,6 +504,15 @@ const char *FeatureIndex::getTemplate() const {
   return templs_.c_str();
 }
 
+void add_cost1(Node *n,const double* A,double cost_factor_)
+{
+	do { double c = 0;                                                               
+    for (const int *f = n->fvector; *f != -1; ++f) {
+		c += (A)[*f + n->y];  
+	}  
+    n->cost =cost_factor_ *(double)c; } while (0);
+}
+
 void FeatureIndex::calcCost(Node *n) const {
   n->cost = 0.0;
 
@@ -515,7 +524,8 @@ void FeatureIndex::calcCost(Node *n) const {
   if (alpha_float_) {
     ADD_COST(float,  alpha_float_);
   } else {
-    ADD_COST(double, alpha_);
+   // ADD_COST(double, alpha_);
+	  add_cost1(n,alpha_,cost_factor_);
   }
 #undef ADD_COST
 }

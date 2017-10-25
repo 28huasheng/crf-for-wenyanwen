@@ -507,10 +507,14 @@ void TaggerImpl::forwardbackward() {
   if (x_.empty()) {
     return;
   }
-
+  
   for (int i = 0; i < static_cast<int>(x_.size()); ++i) {
     for (size_t j = 0; j < ysize_; ++j) {
       node_[i][j]->calcAlpha();
+	  if(node_[i][j]->alpha!=0)
+	  {
+		  int a =0;
+	  }
     }
   }
 
@@ -566,13 +570,15 @@ void TaggerImpl::viterbi() {
 
 double TaggerImpl::gradient(double *expected) {
   if (x_.empty()) return 0.0;
-
+  //构建网络
   buildLattice();
+  //前向，后向分别计算alpha,beta
   forwardbackward();
   double s = 0.0;
 
   for (size_t i = 0;   i < x_.size(); ++i) {
     for (size_t j = 0; j < ysize_; ++j) {
+	//计算边缘概率，并存储到expected全局数组中，全局数组是一个M*N的二维矩阵，M个特征的类别，如NN,VPN。。N是输出状态的种类数，如I,B,O
       node_[i][j]->calcExpectation(expected, Z_, ysize_);
     }
   }

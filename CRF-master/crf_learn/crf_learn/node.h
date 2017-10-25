@@ -22,12 +22,14 @@ namespace CRFPP {
 // e.g., log(exp(log(exp(x) + exp(y))) + exp(z)) =
 // log(exp (x) + exp(y) + exp(z))
 inline double logsumexp(double x, double y, bool flg) {
+  //SQ,logsumexp 可以参考http://www.hankcs.com/ml/computing-log-sum-exp.html，因此是一个递归求exp和的函数
   if (flg) return y;  // init mode
   const double vmin = std::min(x, y);
   const double vmax = std::max(x, y);
   if (vmax > vmin + MINUS_LOG_EPSILON) {
     return vmax;
   } else {
+  //SQ，注意！一开始，所有NODE,PATH中的alpha,beta，cost都为0，后来逐渐增长，就是因为这个地方在log函数里面的+1.0,相当于学习率步长
     return vmax + std::log(std::exp(vmin - vmax) + 1.0);
   }
 }

@@ -82,6 +82,7 @@ class CRFEncoderThread: public thread {
     err = zeroone = 0;
     std::fill(expected.begin(), expected.end(), 0.0);
     for (size_t i = start_i; i < size; i += thread_num) {
+	//SQ,¼ÆËãÌÝ¶È
       obj += x[i]->gradient(&expected[0]);
       int error_num = x[i]->eval();
       err += error_num;
@@ -307,7 +308,7 @@ bool Encoder::learn(const char *templfile,
                     unsigned short shrinking_size,
                     int algorithm) {
   std::cout << COPYRIGHT << std::endl;
-
+  thread_num  =1;
   CHECK_FALSE(eta > 0.0) << "eta must be > 0.0";
   CHECK_FALSE(C >= 0.0) << "C must be >= 0.0";
   CHECK_FALSE(shrinking_size >= 1) << "shrinking-size must be >= 1";
@@ -374,7 +375,7 @@ bool Encoder::learn(const char *templfile,
   }
 
   feature_index.shrink(freq, &allocator);
-
+  //feature_index.shrink(2, &allocator);
   std::vector <double> alpha(feature_index.size());           // parameter
   std::fill(alpha.begin(), alpha.end(), 0.0);
   feature_index.set_alpha(&alpha[0]);
